@@ -5,5 +5,5 @@ export interface User {
     name: string,
     age: number,
     profilePicture: string,
-    workExperiences: WorkExperience[]
+    workExperiences: Record<string, WorkExperience>
 };

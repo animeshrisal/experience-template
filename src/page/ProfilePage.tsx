@@ -3,33 +3,40 @@ import { useState } from "react";
 import EditExperienceModal from "../component/EditExperienceModal";
 import WorkExperienceContainer from "../component/WorkExperienceContainer";
 import { User } from "../model/User";
-import { WorkExperience } from "../model/WorkExperience";
+import { SelectedWorkExperience, WorkExperience } from "../model/WorkExperience";
 
 const mockData: User = {
   id: "1",
   name: "Abhinav Risal",
   age: 1,
   profilePicture: "test",
-  workExperiences: [{
-    id: 'asd',
-    startDate: '2022-11-11',
-    endDate: '2022-11-12',
-    currentlyWorking: false,
-    jobTitle: "Software Engineer",
-    company: "Cloud Factory",
-    companyLogo: "image",
-    jobDescription: "Software engineer",
-  }]
+  workExperiences: {
+    "zsd": {
+      startDate: '2022-11-11',
+      endDate: '2022-11-12',
+      currentlyWorking: false,
+      jobTitle: "Software Engineer",
+      company: "Cloud Factory",
+      companyLogo: "image",
+      jobDescription: "Software engineer",
+    }
+  }
 }
 
 function ProfilePage() {
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectedExperience, setSelectedExperience] = useState<WorkExperience | null>(null);
-  
+  const [selectedExperience, setSelectedExperience] = useState<WorkExperience & SelectedWorkExperience | null>(null);
+
   const handleEditWorkExperience = (id: string) => {
-    setSelectedExperience(mockData.workExperiences[0])
+    console.log(mockData.workExperiences[id])
+    setSelectedExperience({ id, ...mockData.workExperiences[id] })
     setIsOpen(true);
+  }
+
+  const handleSave = (experienceId: string, data: any) => {
+    mockData.workExperiences[experienceId] = data;
+    setIsOpen(false)
   }
 
   const handleClose = () => {
@@ -71,16 +78,17 @@ function ProfilePage() {
                 onClick={handleNewExperience}
               >Add New Experience</Button>
             </Flex>
-            {workExperiences.map(workExperience =>
-              (<WorkExperienceContainer {...workExperience} onEdit={handleEditWorkExperience} />)
+            {Object.entries(workExperiences).map(([key, workExperience]) =>
+              (<WorkExperienceContainer key={key} id={key} {...workExperience} onEdit={handleEditWorkExperience} />)
             )}
           </VStack>
         </Box>
       </HStack>
       <Portal>
-        <EditExperienceModal 
+        <EditExperienceModal
           experience={selectedExperience}
-          isOpen={isOpen} 
+          isOpen={isOpen}
+          onSave={handleSave}
           onClose={handleClose} />
       </Portal>
     </Container>

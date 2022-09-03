@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { WorkExperience } from '../model/WorkExperience';
+import { SelectedWorkExperience, WorkExperience } from '../model/WorkExperience';
 
 type Inputs = {
   name: string;
@@ -30,17 +30,18 @@ type Inputs = {
   endDate: string | null;
   jobTitle: string;
   company: string;
-  companyLogo: string;
+  companyLogo: string | FileList;
   jobDescription: string;
 }
 
 interface EditExperienceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  experience: WorkExperience | null;
+  onSave: (experienceId: string, values: any) => void;
+  experience: WorkExperience & SelectedWorkExperience | null;
 }
 
-function EditExperienceModal({ isOpen, onClose, experience }: EditExperienceModalProps) {
+function EditExperienceModal({ isOpen, onClose, onSave, experience }: EditExperienceModalProps) {
   const [currentPosition, setCurrentPosition] = useState<boolean>(false);
   const {
     handleSubmit,
@@ -50,6 +51,7 @@ function EditExperienceModal({ isOpen, onClose, experience }: EditExperienceModa
   } = useForm<Inputs>()
 
   useEffect(() => {
+    console.log(experience)
     if (experience) {
       const { ...remaining} = experience
       reset({  ...remaining})
@@ -59,7 +61,8 @@ function EditExperienceModal({ isOpen, onClose, experience }: EditExperienceModa
   const inputFile = useRef<HTMLInputElement>(null);;
 
   const onSubmit: SubmitHandler<Inputs> = values => {
-    console.log(values);
+    console.log(experience)
+    if(experience) onSave(experience.id, values);
   }
   const toggleSwitch = () => {
     setCurrentPosition(prevState => !prevState);
@@ -123,14 +126,10 @@ function EditExperienceModal({ isOpen, onClose, experience }: EditExperienceModa
                   id='startDate'
                   {...register('startDate', {
                     required: 'This is required',
-                    validate: validateStartDate
                   })}
                 />
                 <FormErrorMessage>
                   {errors.startDate && errors.startDate.message}
-                  {errors.startDate && errors.startDate.type === "validate" && (
-                    <Box>asdasd</Box>
-                  )}
                 </FormErrorMessage>
               </FormControl>
 

@@ -1,6 +1,4 @@
-
-export interface WorkExperience {
-  id: string,
+export interface WorkExperience extends Record<string, any> {
   startDate: string;
   endDate: string;
   jobTitle: string;
@@ -8,4 +6,8 @@ export interface WorkExperience {
   companyLogo: string;
   jobDescription: string;
   currentlyWorking: boolean;
+}
+
+export interface SelectedWorkExperience {
+  id: string;
 }
