@@ -1,9 +1,11 @@
 import { Box, Button, Container, Flex, Heading, HStack, Portal, Spacer, Text, VStack } from "@chakra-ui/react";
+import { defaultMaxListeners } from "events";
 import { useState } from "react";
 import EditExperienceModal from "../component/EditExperienceModal";
 import WorkExperienceContainer from "../component/WorkExperienceContainer";
 import { User } from "../model/User";
 import { SelectedWorkExperience, WorkExperience } from "../model/WorkExperience";
+import { v4 as uuidv4 } from 'uuid';
 
 const mockData: User = {
   id: "1",
@@ -11,7 +13,7 @@ const mockData: User = {
   age: 1,
   profilePicture: "test",
   workExperiences: {
-    "zsd": {
+    [uuidv4()]: {
       startDate: '2022-11-11',
       endDate: '2022-11-12',
       currentlyWorking: false,
@@ -23,29 +25,46 @@ const mockData: User = {
   }
 }
 
+export interface ModalStatus {
+  isOpen: boolean;
+  isEditing: boolean;
+}
+
 function ProfilePage() {
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const defaultState: ModalStatus = {
+    isOpen: false,
+    isEditing: false,
+  }
+
+  const [modalStatus, setModalStatus] = useState<ModalStatus>(defaultState);
   const [selectedExperience, setSelectedExperience] = useState<WorkExperience & SelectedWorkExperience | null>(null);
 
   const handleEditWorkExperience = (id: string) => {
     console.log(mockData.workExperiences[id])
     setSelectedExperience({ id, ...mockData.workExperiences[id] })
-    setIsOpen(true);
+    setModalStatus({ isOpen: true, isEditing: true });
   }
 
-  const handleSave = (experienceId: string, data: any) => {
-    mockData.workExperiences[experienceId] = data;
-    setIsOpen(false)
+  const handleSave = (experienceId: string | null, data: any) => {
+    if(experienceId === null) {
+      mockData.workExperiences[uuidv4()] = data;
+    } else {
+      mockData.workExperiences[experienceId] = data;
+    }
+    setModalStatus(defaultState)
   }
 
   const handleClose = () => {
-    setIsOpen(false);
+    setModalStatus(defaultState);
     setSelectedExperience(null)
   }
 
   const handleNewExperience = () => {
-    setIsOpen(true)
+    setModalStatus({
+      isOpen: true,
+      isEditing: false,
+    })
   }
 
   const { workExperiences } = mockData;
@@ -87,7 +106,7 @@ function ProfilePage() {
       <Portal>
         <EditExperienceModal
           experience={selectedExperience}
-          isOpen={isOpen}
+          modalStatus={modalStatus}
           onSave={handleSave}
           onClose={handleClose} />
       </Portal>

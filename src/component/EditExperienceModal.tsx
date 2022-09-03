@@ -20,6 +20,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { SelectedWorkExperience, WorkExperience } from '../model/WorkExperience';
+import { ModalStatus } from '../page/ProfilePage';
 
 type Inputs = {
   name: string;
@@ -35,13 +36,13 @@ type Inputs = {
 }
 
 interface EditExperienceModalProps {
-  isOpen: boolean;
+  modalStatus: ModalStatus;
   onClose: () => void;
-  onSave: (experienceId: string, values: any) => void;
+  onSave: (experienceId: string | null, values: any) => void;
   experience: WorkExperience & SelectedWorkExperience | null;
 }
 
-function EditExperienceModal({ isOpen, onClose, onSave, experience }: EditExperienceModalProps) {
+function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditExperienceModalProps) {
   const [currentPosition, setCurrentPosition] = useState<boolean>(false);
   const {
     handleSubmit,
@@ -61,8 +62,12 @@ function EditExperienceModal({ isOpen, onClose, onSave, experience }: EditExperi
   const inputFile = useRef<HTMLInputElement>(null);;
 
   const onSubmit: SubmitHandler<Inputs> = values => {
-    console.log(experience)
-    if(experience) onSave(experience.id, values);
+    if(experience === null) {
+      onSave(null, values);
+    } else {
+      onSave(experience.id, values);
+    }
+
   }
   const toggleSwitch = () => {
     setCurrentPosition(prevState => !prevState);
@@ -77,6 +82,8 @@ function EditExperienceModal({ isOpen, onClose, onSave, experience }: EditExperi
     return new Date(startDate) < new Date();
   }
 
+  const { isOpen, isEditing } = modalStatus
+
   return (
     <Modal
       isOpen={isOpen}
@@ -88,7 +95,7 @@ function EditExperienceModal({ isOpen, onClose, onSave, experience }: EditExperi
         height={"70vh"}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>Edit Work Experience</ModalHeader>
+          <ModalHeader>{ isEditing ? "Edit" : "Add" } Work Experience</ModalHeader>
           <ModalCloseButton />
 
           <ModalBody>
