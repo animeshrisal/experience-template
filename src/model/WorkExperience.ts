@@ -7,4 +7,5 @@ export interface WorkExperience {
   company: string;
   companyLogo: string;
   jobDescription: string;
+  currentlyWorking: boolean;
 }

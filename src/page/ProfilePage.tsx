@@ -12,15 +12,15 @@ const mockData: User = {
   profilePicture: "test",
   workExperiences: [{
     id: 'asd',
-    startDate: '2022-7-1',
-    endDate: '2022-7-2',
+    startDate: '2022-11-11',
+    endDate: '2022-11-12',
+    currentlyWorking: false,
     jobTitle: "Software Engineer",
     company: "Cloud Factory",
     companyLogo: "image",
     jobDescription: "Software engineer",
   }]
 }
-
 
 function ProfilePage() {
 
