@@ -6,6 +6,7 @@ import WorkExperienceContainer from "../component/WorkExperienceContainer";
 import { User } from "../model/User";
 import { SelectedWorkExperience, WorkExperience } from "../model/WorkExperience";
 import { v4 as uuidv4 } from 'uuid';
+import { saveDataToLocalStorage } from "../helpers/storage";
 
 const mockData: User = {
   id: "1",
@@ -52,6 +53,8 @@ function ProfilePage() {
     } else {
       mockData.workExperiences[experienceId] = data;
     }
+
+    saveDataToLocalStorage(mockData);
     setModalStatus(defaultState)
   }
 
