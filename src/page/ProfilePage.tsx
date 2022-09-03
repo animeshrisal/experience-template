@@ -1,12 +1,21 @@
 import { Box, Button, Container, Flex, Heading, HStack, Portal, Spacer, Text, VStack } from "@chakra-ui/react";
-import { defaultMaxListeners } from "events";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import EditExperienceModal from "../component/EditExperienceModal";
 import WorkExperienceContainer from "../component/WorkExperienceContainer";
 import { User } from "../model/User";
 import { SelectedWorkExperience, WorkExperience } from "../model/WorkExperience";
 import { v4 as uuidv4 } from 'uuid';
-import { saveDataToLocalStorage } from "../helpers/storage";
+import { getDataFromLocalStorage, saveDataToLocalStorage } from "../helpers/storage";
+import { initializeApp } from 'firebase/app';
+import { getFirestore, setDoc, doc} from 'firebase/firestore/lite';
+import isOnline from "is-online";
+
+const firebaseConfig = {
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const mockData: User = {
   id: "1",
@@ -38,6 +47,8 @@ function ProfilePage() {
     isEditing: false,
   }
 
+  const intervalRef = useRef<undefined | ReturnType<typeof setInterval>>();
+
   const [modalStatus, setModalStatus] = useState<ModalStatus>(defaultState);
   const [selectedExperience, setSelectedExperience] = useState<WorkExperience & SelectedWorkExperience | null>(null);
 
@@ -47,16 +58,48 @@ function ProfilePage() {
     setModalStatus({ isOpen: true, isEditing: true });
   }
 
-  const handleSave = (experienceId: string | null, data: any) => {
-    if(experienceId === null) {
+  const checkIfOnline = async () => {
+    console.log("Checking if online!")
+    const online = await isOnline();
+    if (online) {
+      saveData(getDataFromLocalStorage()).then(() => {
+        clearInterval(intervalRef.current);
+      })
+    }
+  }
+
+  const saveData = async (data: any) => {
+    try {
+      await setDoc(doc(db, "profile", "user"), { mockData });
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    } finally {
+      saveDataToLocalStorage(mockData);
+    }
+  }
+
+  const handleSave = async (experienceId: string | null, data: any) => {
+    if (experienceId === null) {
       mockData.workExperiences[uuidv4()] = data;
     } else {
       mockData.workExperiences[experienceId] = data;
     }
 
-    saveDataToLocalStorage(mockData);
+    const online = await isOnline();
+
+    if (online) {
+      saveData(mockData)
+    } else {
+      saveDataToLocalStorage(mockData);
+      const id = setInterval(() => {
+        checkIfOnline();
+      }, 5000)
+
+      intervalRef.current = id;
+    }
     setModalStatus(defaultState)
   }
+
 
   const handleClose = () => {
     setModalStatus(defaultState);

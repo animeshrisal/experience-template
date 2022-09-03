@@ -4,12 +4,12 @@ export const saveDataToLocalStorage = (user: User) => {
     localStorage.setItem("user", JSON.stringify(user));
 }
 
-export const getDataFromLocalStorae = () => {
-    const user =  localStorage.getItem("user");
+export const getDataFromLocalStorage = () : User | null=> {
+    const user = localStorage.getItem("user");
 
-    if(user) {
+    if (user) {
         return JSON.parse(user)
-    } 
+    }
 
     return null;
 }
