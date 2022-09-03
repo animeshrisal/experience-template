@@ -50,7 +50,6 @@ import {
     const inputFile = useRef<HTMLInputElement>(null);;
   
     const onSubmit: SubmitHandler<Inputs> = values => {
-      console.log(values);
     }
     const toggleSwitch = () => {
       setCurrentPosition(prevState => !prevState);

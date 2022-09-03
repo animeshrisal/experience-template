@@ -52,7 +52,6 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
   } = useForm<Inputs>()
 
   useEffect(() => {
-    console.log(experience)
     if (experience) {
       const { ...remaining} = experience
       reset({  ...remaining})

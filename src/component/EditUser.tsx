@@ -29,7 +29,6 @@ const EditForm = () => {
 
   const inputFile = useRef<HTMLInputElement>(null);;
   const onSubmit: SubmitHandler<Inputs> = values => {
-    console.log(values);
   }
 
   const handleCancel = () => {
