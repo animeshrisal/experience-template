@@ -20,7 +20,7 @@ import {
   Flex,
 } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { SelectedWorkExperience, WorkExperience } from '../model/WorkExperience';
 import { ModalStatus } from '../page/ProfilePage';
 
@@ -49,8 +49,20 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
     formState: { errors },
     reset,
     getValues,
-    trigger
+    trigger,
+    watch,
+    control
   } = useForm<Inputs>()
+
+  const watchEndDate = useWatch({
+    control,
+    name: "endDate"
+  })
+
+
+  useEffect(() => {
+    if(watchEndDate) trigger("startDate")
+  }, [watchEndDate, trigger])
 
   useEffect(() => {
     if (experience) {

@@ -15,7 +15,6 @@ import { createStandaloneToast } from '@chakra-ui/toast';
 const { ToastContainer, toast } = createStandaloneToast()
 
 const firebaseConfig = {
-
 };
 
 const app = initializeApp(firebaseConfig);
