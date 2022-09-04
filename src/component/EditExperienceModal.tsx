@@ -124,8 +124,8 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
       <ModalOverlay />
       <ModalContent
         maxW={"50vw"}
-        minHeight={"62rem"}
-        height={"82vh"}
+        minHeight={"70rem"}
+        height={"70rem"}
         minWidth={"40rem"}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -154,6 +154,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
               </VStack>
             </Box>
             <FormControl
+              height={"5.5rem"}
               isInvalid={Boolean(errors.jobTitle)}
               marginBottom={"1.5rem"}>
               <FormLabel
@@ -228,7 +229,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
                 </FormErrorMessage>
               </FormControl>
             </HStack>
-            <FormControl isInvalid={Boolean(errors.company)} marginBottom="1.5rem">
+            <FormControl height="5.5rem" isInvalid={Boolean(errors.company)} marginBottom="1.5rem">
               <FormLabel
                 htmlFor='company'
                 width="15rem"
@@ -252,7 +253,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
 
             <FormControl
               isInvalid={Boolean(errors.jobDescription)}
-
+              height="20rem"
             >
               <FormLabel
                 htmlFor='jobDescription'

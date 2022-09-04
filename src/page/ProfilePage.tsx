@@ -15,6 +15,7 @@ import { createStandaloneToast } from '@chakra-ui/toast';
 const { ToastContainer, toast } = createStandaloneToast()
 
 const firebaseConfig = {
+
 };
 
 const app = initializeApp(firebaseConfig);
@@ -215,6 +216,13 @@ function ProfilePage() {
 
     const { workExperiences, ...user } = profile;
     const age = calculateAge(user.dateOfBirth)
+    const sorted = Object.entries(workExperiences)
+      .map((e: [string, WorkExperience]) => ({ id: e[0], ...e[1] }))
+      .sort(function (a, b) {
+        const firstTime = new Date(a.startDate)
+        const secondTime = new Date(b.startDate)
+        return secondTime.valueOf()- firstTime.valueOf() 
+      })
 
     return (
       <Container
@@ -258,9 +266,9 @@ function ProfilePage() {
                   onClick={handleNewExperience}
                 >Add New Experience</Button>
               </Flex>
-              {Object.entries(workExperiences).map(([key, workExperience]) =>
-                (<WorkExperienceContainer key={key} id={key} {...workExperience} onEdit={handleEditWorkExperience} />)
-              )}
+              {
+                sorted.map((value) => <WorkExperienceContainer key={value.id} {...value} onEdit={handleEditWorkExperience} />
+                )}
             </VStack>
           </Box>
         </HStack>
