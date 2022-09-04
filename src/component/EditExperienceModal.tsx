@@ -18,6 +18,7 @@ import {
   Button,
   Avatar,
   Image,
+  ButtonGroup,
 } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -47,12 +48,18 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
     register,
     formState: { errors, isSubmitting },
     reset,
+    getValues,
+    trigger
   } = useForm<Inputs>()
 
   useEffect(() => {
     if (experience) {
-      const { ...remaining } = experience
+      const { companyLogo, currentlyWorking, ...remaining } = experience
       reset({ ...remaining })
+      if (companyLogo) {
+        setImageSrc(companyLogo)
+      }
+      setCurrentPosition(currentlyWorking)
     }
   }, [experience, reset])
 
@@ -68,14 +75,17 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
     setCurrentPosition(prevState => !prevState);
   }
 
+  useEffect(() => {
+    trigger(["startDate"])
+  }, [currentPosition, trigger])
+
   const handleCancel = () => {
     reset({});
+    setImageSrc('');
+    setCurrentPosition(false);
     onClose();
   }
 
-  const validateStartDate = (startDate: string) => {
-    return new Date(startDate) < new Date();
-  }
   const inputRef = useRef<HTMLInputElement>(null);;
   const handleImageChange = () => {
     inputRef.current?.click();
@@ -90,6 +100,11 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
       setImageSrc(reader.result as string)
     }
   }
+
+  const handleDeleteImage = () => {
+    setImageSrc("");
+  }
+
   return (
     <Modal
       isOpen={isOpen}
@@ -103,7 +118,6 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>{isEditing ? "Edit" : "Add"} Work Experience</ModalHeader>
           <ModalCloseButton />
-
           <ModalBody>
             <Box>
               <VStack>
@@ -113,14 +127,16 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
                   width={"10rem"}
                   src={imageSrc}
                   fallbackSrc='https://via.placeholder.com/150' />
-                <HStack align="center">
-                  <Button onClick={handleCancel} type='button'>
-                    Cancel
-                  </Button>
-                  <Input type="file" visibility={"hidden"} ref={inputRef} onChange={onSelectFile} />
-                  <Button colorScheme='teal' onClick={handleImageChange}>
-                    Save
-                  </Button>
+                <HStack>
+                  <ButtonGroup>
+                    <Button onClick={handleDeleteImage} type='button'>
+                      Delete
+                    </Button>
+                    <Button colorScheme='teal' onClick={handleImageChange}>
+                      Change Photo
+                    </Button>
+                    <Input type="file" display={"none"} ref={inputRef} onChange={onSelectFile} />
+                  </ButtonGroup>
                 </HStack>
               </VStack>
             </Box>
@@ -158,6 +174,15 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
                   id='startDate'
                   {...register('startDate', {
                     required: 'This is required',
+                    validate: {
+                      validateEndDate: (value) => {
+                        const startDate = new Date(value);
+                        const endDate = new Date(getValues().endDate!)
+                        if (!currentPosition && startDate > endDate) {
+                          return "Start Date cannot be after End date"
+                        }
+                      }
+                    }
                   })}
                 />
                 <FormErrorMessage>
@@ -171,6 +196,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
                   disabled={currentPosition}
                   type="date"
                   id='endDate'
+                  {...register('endDate')}
                 />
                 <HStack marginTop="0.5rem">
                   <Switch onChange={toggleSwitch} />
