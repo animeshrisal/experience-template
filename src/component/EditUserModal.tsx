@@ -21,7 +21,7 @@ import {
   ButtonGroup,
   Avatar,
 } from '@chakra-ui/react'
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type Inputs = {
@@ -38,10 +38,8 @@ interface EditUserModalProps {
 }
 
 function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalProps) {
-  const [imageSrc, setImageSrc] = useState<string>();
+  const [imageSrc, setImageSrc] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);;
-  const defaultSrc =
-    "https://www.pngkit.com/png/full/301-3012694_account-user-profile-avatar-comments-fa-user-circle.png";
 
   const {
     handleSubmit,
@@ -50,12 +48,22 @@ function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalProps) {
     reset
   } = useForm<Inputs>()
 
+  useEffect(() => {
+    const {profilePicture, ...extra} = user;
+    reset({...extra});
+    if (profilePicture) {
+      setImageSrc(profilePicture)
+    }
+  }, [user, reset])
+
   const inputFile = useRef<HTMLInputElement>(null);
   const onSubmit: SubmitHandler<Inputs> = values => {
+    onSave({...values, profilePicture: imageSrc})
   }
 
-  const handleCancel = () => {
+   const handleCancel = () => {
     reset();
+    setImageSrc("");
   }
 
   const handleImageChange = () => {
@@ -89,13 +97,14 @@ function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalProps) {
           <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={Boolean(errors.profilePicture)}>
             <VStack>
-              <Avatar size='2xl' src={defaultSrc} onClick={handleImageChange} />
+              <Avatar size='2xl' src={imageSrc} onClick={handleImageChange} />
               <Input
                 type="file"
                 id='profilePicture'
                 display={"none"}
                 {...register('profilePicture')}
                 ref={inputFile}
+                onChange={onSelectFile} 
               />
               <ButtonGroup>
                 <Button colorScheme='teal' onClick={handleImageChange}>

@@ -137,7 +137,8 @@ function ProfilePage() {
     setSelectedExperience(null)
   }
 
-  const handleProfileSave = () => {
+  const handleProfileSave = (data: any) => {
+    setProfile({...profile, ...data})
     setIsEditProfileOpen(false)
   }
 
@@ -156,8 +157,16 @@ function ProfilePage() {
     })
   }
 
+  const calculateAge = (dateOfBirth: string) => {
+    const ageDifMs = Date.now() - new Date(dateOfBirth).getTime();
+    const ageDate = new Date(ageDifMs);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  }
+
   if (profile !== null) {
     const { workExperiences, ...user } = profile;
+    const age = calculateAge(user.dateOfBirth)
+    console.log(user)
     return (
       <Container
         maxW={"50vw"}
@@ -177,7 +186,7 @@ function ProfilePage() {
                   <Text>Name: {user.name}</Text>
                 </Box>
                 <Box>
-                  Age: {user.dateOfBirth}
+                  <Text>Age: {age}</Text>
                 </Box>
               </VStack>
               <Spacer />
@@ -202,12 +211,12 @@ function ProfilePage() {
             isOpen={isEditProfileOpen}
             onSave={handleProfileSave}
             onClose={handleProfileClose}
-            />
-            <EditExperienceModal
-              experience={selectedExperience}
-              modalStatus={modalStatus}
-              onSave={handleSave}
-              onClose={handleClose} />
+          />
+          <EditExperienceModal
+            experience={selectedExperience}
+            modalStatus={modalStatus}
+            onSave={handleSave}
+            onClose={handleClose} />
         </Portal>
       </Container>
     )
