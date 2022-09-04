@@ -3,7 +3,6 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   HStack,
@@ -16,7 +15,6 @@ import {
   VStack,
   Textarea,
   Button,
-  Avatar,
   Image,
   ButtonGroup,
   Flex,
@@ -37,17 +35,18 @@ type Inputs = {
 interface EditExperienceModalProps {
   modalStatus: ModalStatus;
   onClose: () => void;
+  isSaving: boolean;
   onSave: (experienceId: string | null, values: any) => void;
   experience: WorkExperience & SelectedWorkExperience | null;
 }
 
-function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditExperienceModalProps) {
+function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experience }: EditExperienceModalProps) {
   const [currentPosition, setCurrentPosition] = useState<boolean>(false);
   const [imageSrc, setImageSrc] = useState<string>();
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     getValues,
     trigger
@@ -94,7 +93,6 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
   const { isOpen, isEditing } = modalStatus
 
   const onSelectFile = (e: any) => {
-    console.log(e.target.files[0])
     var reader = new FileReader();
     reader.readAsDataURL(e.target.files[0]);
     reader.onloadend = () => {
@@ -261,10 +259,10 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
               justifyContent={"flex-end"}
             >
               <ButtonGroup>
-                <Button mt={4} colorScheme='red' isLoading={isSubmitting} onClick={handleCancel} type='button'>
+                <Button mt={4} colorScheme='red' onClick={handleCancel} type='button'>
                   Cancel
                 </Button>
-                <Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'>
+                <Button mt={4} colorScheme='teal' isLoading={isSaving} type='submit'>
                   Save
                 </Button>
 

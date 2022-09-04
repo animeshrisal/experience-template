@@ -1,4 +1,4 @@
-import { Box, Button, Container, Flex, Heading, HStack, Portal, Spacer, Text, VStack } from "@chakra-ui/react";
+import { Avatar, Box, Button, Container, Flex, Heading, HStack, Portal, Spacer, Text, VStack } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import EditExperienceModal from "../component/EditExperienceModal";
 import WorkExperienceContainer from "../component/WorkExperienceContainer";
@@ -53,6 +53,7 @@ function ProfilePage() {
   const [modalStatus, setModalStatus] = useState<ModalStatus>(defaultState);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState<boolean>(false);
   const [selectedExperience, setSelectedExperience] = useState<WorkExperience & SelectedWorkExperience | null>(null);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const saveData = useCallback(async (data: any) => {
     try {
@@ -91,6 +92,36 @@ function ProfilePage() {
     }
   }, [checkIfOnline])
 
+  const save = useCallback(async () => {
+    const online = await isOnline();
+
+    if (profile) {
+      if (online) {
+        saveData(profile).then(() => {
+          setIsSaving(false);
+          setModalStatus(defaultState)
+          setIsEditProfileOpen(false)
+        })
+      } else {
+        saveDataToLocalStorage(profile);
+        localStorage.setItem("SyncRequired", "1");
+        const id = setInterval(() => {
+          checkIfOnline();
+        }, 5000)
+
+        intervalRef.current = id;
+      }
+    }
+  }, [checkIfOnline, profile, saveData])
+
+  useEffect(() => {
+    if (isSaving) {
+      save()
+    }
+  }, [isSaving, save])
+
+
+
   const getDataFromServer = async () => {
     try {
       const querySnapshot = await getDoc(doc(db, "profile", "user"));
@@ -107,29 +138,22 @@ function ProfilePage() {
 
   const handleSave = async (experienceId: string | null, data: any) => {
     if (profile) {
-      if (experienceId === null) {
-        profile.workExperiences[uuidv4()] = data;
-      } else {
-        profile.workExperiences[experienceId] = data;
-      }
+      setProfile(prevState => {
+        console.log(prevState)
+        if (prevState) {
+          if (experienceId === null) {
+            prevState.workExperiences[uuidv4()] = data
+          } else {
+            prevState.workExperiences[experienceId] = data
+          }
+          return prevState
+        } else {
+          return null
+        }
+      })
+
+      setIsSaving(true)
     }
-
-    const online = await isOnline();
-
-    if (profile) {
-      if (online) {
-        saveData(profile)
-      } else {
-        saveDataToLocalStorage(profile);
-        localStorage.setItem("SyncRequired", "1");
-        const id = setInterval(() => {
-          checkIfOnline();
-        }, 5000)
-
-        intervalRef.current = id;
-      }
-    }
-    setModalStatus(defaultState)
   }
 
   const handleClose = () => {
@@ -137,9 +161,9 @@ function ProfilePage() {
     setSelectedExperience(null)
   }
 
-  const handleProfileSave = (data: any) => {
-    setProfile({...profile, ...data})
-    setIsEditProfileOpen(false)
+  const handleProfileSave = async (data: any) => {
+    setProfile({ ...profile, ...data })
+    setIsSaving(true)
   }
 
   const handleProfileClose = () => {
@@ -164,9 +188,10 @@ function ProfilePage() {
   }
 
   if (profile !== null) {
+
     const { workExperiences, ...user } = profile;
     const age = calculateAge(user.dateOfBirth)
-    console.log(user)
+
     return (
       <Container
         maxW={"50vw"}
@@ -181,13 +206,23 @@ function ProfilePage() {
                 </Heading>
                 <Button onClick={handleEditProfile}>Edit Profile</Button>
               </Flex>
-              <VStack align={"flex-start"}>
-                <Box>
-                  <Text>Name: {user.name}</Text>
-                </Box>
-                <Box>
-                  <Text>Age: {age}</Text>
-                </Box>
+              <VStack align={"flex-start"} width="100%">
+                <HStack width={"100%"}>
+                  <Avatar
+                    src={user.profilePicture}
+                    alignSelf={"center"}
+                    height={"6rem"}
+                    width={"6rem"}
+                  />
+                  <Box>
+                    <Box>
+                      <Text>Name: {user.name}</Text>
+                    </Box>
+                    <Box>
+                      <Text>Age: {age}</Text>
+                    </Box>
+                  </Box>
+                </HStack>
               </VStack>
               <Spacer />
               <Flex
@@ -208,11 +243,13 @@ function ProfilePage() {
         <Portal>
           <EditUserModal
             user={user}
+            isSaving={isSaving}
             isOpen={isEditProfileOpen}
             onSave={handleProfileSave}
             onClose={handleProfileClose}
           />
           <EditExperienceModal
+            isSaving={isSaving}
             experience={selectedExperience}
             modalStatus={modalStatus}
             onSave={handleSave}

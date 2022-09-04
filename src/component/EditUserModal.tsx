@@ -2,19 +2,13 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
-  ModalFooter,
   ModalBody,
-  ModalCloseButton,
   HStack,
   FormControl,
   FormLabel,
   Input,
-  Switch,
-  Box,
   FormErrorMessage,
   VStack,
-  Textarea,
   Button,
   Divider,
   Flex,
@@ -33,11 +27,12 @@ type Inputs = {
 interface EditUserModalProps {
   user: Inputs
   isOpen: boolean;
+  isSaving: boolean;
   onClose: () => void;
   onSave: (values: any) => void;
 }
 
-function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalProps) {
+function EditUserModal({ user, isOpen, isSaving, onClose, onSave }: EditUserModalProps) {
   const [imageSrc, setImageSrc] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);;
 
@@ -64,6 +59,7 @@ function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalProps) {
    const handleCancel = () => {
     reset();
     setImageSrc("");
+    onClose()
   }
 
   const handleImageChange = () => {
@@ -71,7 +67,6 @@ function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalProps) {
   }
 
   const onSelectFile = (e: any) => {
-    console.log(e.target.files[0])
     var reader = new FileReader();
     reader.readAsDataURL(e.target.files[0]);
     reader.onloadend = () => {
@@ -91,7 +86,9 @@ function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalProps) {
       <ModalOverlay />
       <ModalContent
         maxW={"20vw"}
-        height={"45vh"}
+        height={"35rem"}
+        minWidth={"20rem"}
+        minHeight={"35rem"}
       >
         <ModalBody marginTop={"4rem"}>        
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -172,17 +169,16 @@ function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalProps) {
           <Divider margin="1.5rem 0" />
           <Flex>
             <ButtonGroup marginLeft={"auto"}>
-              <Button mt={4} colorScheme='red' isLoading={isSubmitting} onClick={handleCancel} type='button'>
+              <Button mt={4} colorScheme='red' onClick={handleCancel} type='button'>
                 Cancel
               </Button>
-              <Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'>
+              <Button mt={4} colorScheme='teal' isLoading={isSaving} type='submit'>
                 Save
               </Button>
             </ButtonGroup>
           </Flex>
         </form>
         </ModalBody>
-
       </ModalContent>
     </Modal>
   )

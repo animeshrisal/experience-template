@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Container, Divider, Heading, HStack, Image, Spacer, Text } from "@chakra-ui/react";
+import { Box, Button, Container, Divider, HStack, Image, Text } from "@chakra-ui/react";
 import { WorkExperience } from "../model/WorkExperience"
 
 
