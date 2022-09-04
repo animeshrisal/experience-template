@@ -1,13 +1,15 @@
-import { Box, Button, Container, Divider, HStack, Image, Text } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, Container, Divider, HStack, Image, Text } from "@chakra-ui/react";
 import { WorkExperience } from "../model/WorkExperience"
 
 
 export interface WorkExperienceContainerProps extends WorkExperience {
   onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const WorkExperienceContainer = ({
   onEdit,
+  onDelete,
   id,
   startDate,
   endDate,
@@ -22,6 +24,10 @@ const WorkExperienceContainer = ({
     onEdit(id)
   }
 
+  const handleDelete = () => {
+    onDelete(id)
+  }
+
   return (
     <Box
       width={"100%"}
@@ -30,12 +36,19 @@ const WorkExperienceContainer = ({
       <HStack
         marginTop={"1rem"}
         position="relative" align="flex-start" width="100%">
-        <Button
-          onClick={handleEdit}
+        <ButtonGroup
           position={"absolute"}
           top="0"
-          right="0"
-        >Edit</Button>
+          right="0">
+          <Button
+            onClick={handleEdit}
+
+          >Edit</Button>
+          <Button 
+            colorScheme='red'
+            onClick={handleDelete}
+          >Delete</Button>
+        </ButtonGroup>
         <Container width="5rem" paddingTop="1rem">
           <Image src={companyLogo} height="4rem" width="4rem" />
         </Container>

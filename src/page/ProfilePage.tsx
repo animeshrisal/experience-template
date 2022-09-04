@@ -11,11 +11,11 @@ import { getFirestore, setDoc, doc, getDoc } from 'firebase/firestore/lite';
 import isOnline from "is-online";
 import EditUserModal from "../component/EditUserModal";
 import { createStandaloneToast } from '@chakra-ui/toast';
+import DeleteExperienceModal from "../component/DeleteExperienceModal";
 
 const { ToastContainer, toast } = createStandaloneToast()
 
 const firebaseConfig = {
-
 };
 
 const app = initializeApp(firebaseConfig);
@@ -52,6 +52,7 @@ function ProfilePage() {
   const [profile, setProfile] = useState<User | null>(null);
   const [modalStatus, setModalStatus] = useState<ModalStatus>(defaultState);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState<boolean>(false);
+  const [isDeletingExperience, setIsDeletingExperience] = useState<boolean>(false);
   const [selectedExperience, setSelectedExperience] = useState<WorkExperience & SelectedWorkExperience | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -108,6 +109,7 @@ function ProfilePage() {
           setIsSaving(false);
           setModalStatus(defaultState)
           setIsEditProfileOpen(false)
+          setIsDeletingExperience(false)
           toast({
             title: 'Saved',
             description: 'Data has been saved successfully',
@@ -186,6 +188,11 @@ function ProfilePage() {
     setSelectedExperience(null)
   }
 
+  const handleDeleteClose = () => {
+    setIsDeletingExperience(false);
+    setSelectedExperience(null)
+  }
+
   const handleProfileSave = async (data: any) => {
     setProfile({ ...profile, ...data })
     setIsSaving(true)
@@ -206,6 +213,25 @@ function ProfilePage() {
     })
   }
 
+  const handleDeleteExperience = (id: string) => {
+    setSelectedExperience({ id, ...profile!.workExperiences[id] })
+    setIsDeletingExperience(true);
+  }
+
+  const handleDelete = () => {
+    if (profile) {
+      setProfile(prevState => {
+        if(prevState && selectedExperience) { 
+          delete prevState.workExperiences[selectedExperience.id] 
+        }
+
+        return prevState
+      })
+      setSelectedExperience(null)
+      setIsSaving(true)
+    }
+  }
+
   const calculateAge = (dateOfBirth: string) => {
     const ageDifMs = Date.now() - new Date(dateOfBirth).getTime();
     const ageDate = new Date(ageDifMs);
@@ -221,7 +247,7 @@ function ProfilePage() {
       .sort(function (a, b) {
         const firstTime = new Date(a.startDate)
         const secondTime = new Date(b.startDate)
-        return secondTime.valueOf()- firstTime.valueOf() 
+        return secondTime.valueOf() - firstTime.valueOf()
       })
 
     return (
@@ -267,7 +293,12 @@ function ProfilePage() {
                 >Add New Experience</Button>
               </Flex>
               {
-                sorted.map((value) => <WorkExperienceContainer key={value.id} {...value} onEdit={handleEditWorkExperience} />
+                sorted.map((value) => <WorkExperienceContainer
+                  key={value.id}
+                  {...value}
+                  onEdit={handleEditWorkExperience}
+                  onDelete={handleDeleteExperience}
+                />
                 )}
             </VStack>
           </Box>
@@ -287,6 +318,11 @@ function ProfilePage() {
             modalStatus={modalStatus}
             onSave={handleSave}
             onClose={handleClose} />
+          <DeleteExperienceModal
+            isSaving={isSaving}
+            isOpen={isDeletingExperience}
+            onDelete={handleDelete}
+            onClose={handleDeleteClose} />
         </Portal>
       </Container>
     )
