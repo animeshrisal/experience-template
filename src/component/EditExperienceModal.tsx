@@ -60,7 +60,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
 
 
   useEffect(() => {
-    if (watchEndDate) trigger("startDate")
+    if (watchEndDate !== "") trigger("startDate")
   }, [watchEndDate, trigger])
 
   useEffect(() => {
