@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm, useWatch } from 'react-hook-form';
+import { getToday } from '../helpers/utils';
 import { SelectedWorkExperience, WorkExperience } from '../model/WorkExperience';
 import { ModalStatus, SelectedModal } from '../page/ProfilePage';
 
@@ -41,7 +42,7 @@ interface EditExperienceModalProps {
 }
 
 function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experience }: EditExperienceModalProps) {
-  const [currentPosition, setCurrentPosition] = useState<boolean>(false);
+  const [currentPosition, setCurrentPosition] = useState<boolean>(true);
   const [imageSrc, setImageSrc] = useState<string>();
   const {
     handleSubmit,
@@ -51,7 +52,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
     getValues,
     trigger,
     control
-  } = useForm<Inputs>()
+  } = useForm<Inputs>({})
 
   const watchEndDate = useWatch({
     control,
@@ -62,7 +63,6 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
   useEffect(() => {
     if (watchEndDate !== "") trigger("startDate")
   }, [watchEndDate, trigger])
-
   useEffect(() => {
     if (experience) {
       const { companyLogo, currentlyWorking, ...remaining } = experience
@@ -91,7 +91,10 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
   }, [currentPosition, trigger])
 
   const handleCancel = () => {
-    reset({});
+    reset({
+      startDate: getToday(),
+      endDate: getToday()
+    });
     setImageSrc('');
     setCurrentPosition(false);
     onClose();
@@ -118,7 +121,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
   return (
     <Modal
       isOpen={
-        openModal === SelectedModal.IS_ADDING_EXPERIENCE || 
+        openModal === SelectedModal.IS_ADDING_EXPERIENCE ||
         openModal === SelectedModal.IS_EDITING_EXPERIENCE}
       onClose={handleCancel}
     >

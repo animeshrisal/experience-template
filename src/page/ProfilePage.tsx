@@ -26,7 +26,7 @@ const mockData: User = {
   id: "1",
   name: "Abhinav Risal",
   dateOfBirth: '2022-11-11',
-  profilePicture: "test",
+  profilePicture: "",
   workExperiences: {
     [uuidv4()]: {
       startDate: '2022-11-11',
@@ -34,7 +34,7 @@ const mockData: User = {
       currentlyWorking: false,
       jobTitle: "Software Engineer",
       company: "Cloud Factory",
-      companyLogo: "image",
+      companyLogo: "",
       jobDescription: "Software engineer",
     }
   }
@@ -150,8 +150,6 @@ function ProfilePage() {
     }
   }, [isSaving, save])
 
-
-
   const getDataFromServer = async () => {
     try {
       const querySnapshot = await getDoc(doc(db, "profile", "user"));
@@ -183,7 +181,6 @@ function ProfilePage() {
 
       setIsSaving(true)
     }
-
   }
 
   const handleClose = () => {
