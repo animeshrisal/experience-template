@@ -65,9 +65,9 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
 
   const onSubmit: SubmitHandler<Inputs> = values => {
     if (experience === null) {
-      onSave(null, { companyLogo: imageSrc, ...values });
+      onSave(null, { companyLogo: imageSrc, currentlyWorking: currentPosition, ...values });
     } else {
-      onSave(experience.id, { companyLogo: imageSrc, ...values });
+      onSave(experience.id, { companyLogo: imageSrc, currentlyWorking: currentPosition, ...values });
     }
 
   }
@@ -199,7 +199,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
                   {...register('endDate')}
                 />
                 <HStack marginTop="0.5rem">
-                  <Switch onChange={toggleSwitch} />
+                  <Switch isChecked={currentPosition}  onChange={toggleSwitch} />
                   <Box>Currently working in this role</Box>
                 </HStack>
               </FormControl>

@@ -14,7 +14,8 @@ const WorkExperienceContainer = ({
   jobTitle,
   company,
   companyLogo,
-  jobDescription
+  jobDescription,
+  currentlyWorking
 }: WorkExperienceContainerProps) => {
 
   const handleEdit = () => {
@@ -36,7 +37,7 @@ const WorkExperienceContainer = ({
           right="0"
         >Edit</Button>
         <Container width="5rem" paddingTop="1rem">
-          <Image src={companyLogo} height="4rem" width="4rem"/>
+          <Image src={companyLogo} height="4rem" width="4rem" />
         </Container>
         <Box width="100%">
           <Box>
@@ -49,7 +50,7 @@ const WorkExperienceContainer = ({
               fontSize={"1.2rem"}
               fontWeight="bold"
             >{company}</Text></Box>
-          <Box>{startDate} - {endDate}</Box>
+          <Box>{startDate} - {currentlyWorking ? "current" : endDate}</Box>
           <Box>{jobDescription}</Box>
         </Box>
       </HStack>
