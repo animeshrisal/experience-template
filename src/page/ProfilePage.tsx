@@ -7,7 +7,7 @@ import { SelectedWorkExperience, WorkExperience } from "../model/WorkExperience"
 import { v4 as uuidv4 } from 'uuid';
 import { getDataFromLocalStorage, saveDataToLocalStorage } from "../helpers/storage";
 import { initializeApp } from 'firebase/app';
-import { getFirestore, setDoc, doc, getDocs, collection, getDoc } from 'firebase/firestore/lite';
+import { getFirestore, setDoc, doc, getDoc } from 'firebase/firestore/lite';
 import isOnline from "is-online";
 
 const firebaseConfig = {
@@ -52,15 +52,25 @@ function ProfilePage() {
   const [modalStatus, setModalStatus] = useState<ModalStatus>(defaultState);
   const [selectedExperience, setSelectedExperience] = useState<WorkExperience & SelectedWorkExperience | null>(null);
 
+  const saveData = useCallback(async (data: any) => {
+      try {
+        await setDoc(doc(db, "profile", "user"), data);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      } finally {
+        saveDataToLocalStorage(data);
+      }
+  }, [])
+
   const checkIfOnline = useCallback(async () => {
     const online = await isOnline();
     if (online) {
       saveData(getDataFromLocalStorage()).then(() => {
         clearInterval(intervalRef.current);
-        localStorage.clearItem("SyncRequired");
+        localStorage.removeItem("SyncRequired");
       })
     }
-  }, [])
+  }, [saveData])
 
   useEffect(() => {
     const syncRequired = localStorage.getItem("SyncRequired");
@@ -80,44 +90,42 @@ function ProfilePage() {
   }, [checkIfOnline])
 
   const getDataFromServer = async () => {
-    const querySnapshot = await getDoc(doc(db, "profile", "user"));
-    setProfile(querySnapshot.data() as User)
-  }
-
-  const handleEditWorkExperience = (id: string) => {
-    setSelectedExperience({ id, ...mockData.workExperiences[id] })
-    setModalStatus({ isOpen: true, isEditing: true });
-  }
-
-  const saveData = async (data: any) => {
     try {
-      await setDoc(doc(db, "profile", "user"), mockData);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    } finally {
-      saveDataToLocalStorage(mockData);
+      const querySnapshot = await getDoc(doc(db, "profile", "user"));
+      setProfile(querySnapshot.data() as User)
+    } catch {
+      setProfile(getDataFromLocalStorage()!)
     }
   }
 
+  const handleEditWorkExperience = (id: string) => {
+    setSelectedExperience({ id, ...profile!.workExperiences[id] })
+    setModalStatus({ isOpen: true, isEditing: true });
+  }
+
   const handleSave = async (experienceId: string | null, data: any) => {
-    if (experienceId === null) {
-      mockData.workExperiences[uuidv4()] = data;
-    } else {
-      mockData.workExperiences[experienceId] = data;
+    if (profile) {
+      if (experienceId === null) {
+        profile.workExperiences[uuidv4()] = data;
+      } else {
+        profile.workExperiences[experienceId] = data;
+      }
     }
 
     const online = await isOnline();
 
-    if (online) {
-      saveData(mockData)
-    } else {
-      saveDataToLocalStorage(mockData);
-      localStorage.setItem("SyncRequired", "1");
-      const id = setInterval(() => {
-        checkIfOnline();
-      }, 5000)
+    if (profile) {
+      if (online) {
+        saveData(profile)
+      } else {
+        saveDataToLocalStorage(profile);
+        localStorage.setItem("SyncRequired", "1");
+        const id = setInterval(() => {
+          checkIfOnline();
+        }, 5000)
 
-      intervalRef.current = id;
+        intervalRef.current = id;
+      }
     }
     setModalStatus(defaultState)
   }

@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Container, Divider, Heading, HStack, Spacer, Text } from "@chakra-ui/react";
+import { Avatar, Box, Button, Container, Divider, Heading, HStack, Image, Spacer, Text } from "@chakra-ui/react";
 import { WorkExperience } from "../model/WorkExperience"
 
 
@@ -36,7 +36,7 @@ const WorkExperienceContainer = ({
           right="0"
         >Edit</Button>
         <Container width="5rem" paddingTop="1rem">
-          <Avatar />
+          <Image src={companyLogo} height="4rem" width="4rem"/>
         </Container>
         <Box width="100%">
           <Box>

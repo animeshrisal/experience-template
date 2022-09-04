@@ -16,6 +16,8 @@ import {
   VStack,
   Textarea,
   Button,
+  Avatar,
+  Image,
 } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -23,15 +25,10 @@ import { SelectedWorkExperience, WorkExperience } from '../model/WorkExperience'
 import { ModalStatus } from '../page/ProfilePage';
 
 type Inputs = {
-  name: string;
-  profilePicture: string | null;
-  age: number;
-  workExperience: number;
   startDate: string;
   endDate: string | null;
   jobTitle: string;
   company: string;
-  companyLogo: string | FileList;
   jobDescription: string;
 }
 
@@ -44,6 +41,7 @@ interface EditExperienceModalProps {
 
 function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditExperienceModalProps) {
   const [currentPosition, setCurrentPosition] = useState<boolean>(false);
+  const [imageSrc, setImageSrc] = useState<string>();
   const {
     handleSubmit,
     register,
@@ -53,18 +51,16 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
 
   useEffect(() => {
     if (experience) {
-      const { ...remaining} = experience
-      reset({  ...remaining})
+      const { ...remaining } = experience
+      reset({ ...remaining })
     }
   }, [experience, reset])
 
-  const inputFile = useRef<HTMLInputElement>(null);;
-
   const onSubmit: SubmitHandler<Inputs> = values => {
-    if(experience === null) {
-      onSave(null, values);
+    if (experience === null) {
+      onSave(null, { companyLogo: imageSrc, ...values });
     } else {
-      onSave(experience.id, values);
+      onSave(experience.id, { companyLogo: imageSrc, ...values });
     }
 
   }
@@ -80,9 +76,20 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
   const validateStartDate = (startDate: string) => {
     return new Date(startDate) < new Date();
   }
-
+  const inputRef = useRef<HTMLInputElement>(null);;
+  const handleImageChange = () => {
+    inputRef.current?.click();
+  }
   const { isOpen, isEditing } = modalStatus
 
+  const onSelectFile = (e: any) => {
+    console.log(e.target.files[0])
+    var reader = new FileReader();
+    reader.readAsDataURL(e.target.files[0]);
+    reader.onloadend = () => {
+      setImageSrc(reader.result as string)
+    }
+  }
   return (
     <Modal
       isOpen={isOpen}
@@ -91,13 +98,32 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
       <ModalOverlay />
       <ModalContent
         maxW={"50vw"}
-        height={"70vh"}
+        height={"75vh"}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>{ isEditing ? "Edit" : "Add" } Work Experience</ModalHeader>
+          <ModalHeader>{isEditing ? "Edit" : "Add"} Work Experience</ModalHeader>
           <ModalCloseButton />
 
           <ModalBody>
+            <Box>
+              <VStack>
+                <Image
+                  margin={"auto"}
+                  height={"10rem"}
+                  width={"10rem"}
+                  src={imageSrc}
+                  fallbackSrc='https://via.placeholder.com/150' />
+                <HStack align="center">
+                  <Button onClick={handleCancel} type='button'>
+                    Cancel
+                  </Button>
+                  <Input type="file" visibility={"hidden"} ref={inputRef} onChange={onSelectFile} />
+                  <Button colorScheme='teal' onClick={handleImageChange}>
+                    Save
+                  </Button>
+                </HStack>
+              </VStack>
+            </Box>
             <FormControl
               isInvalid={Boolean(errors.jobTitle)}
               marginBottom={"1.5rem"}>
@@ -173,16 +199,6 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
                 </FormErrorMessage>
               </VStack>
             </FormControl>
-
-            <FormControl isInvalid={Boolean(errors.companyLogo)}>
-              <Input
-                type="file"
-                id='companyLogo'
-                placeholder=''
-                {...register('companyLogo')}
-              />
-            </FormControl>
-
 
             <FormControl
               isInvalid={Boolean(errors.jobDescription)}
