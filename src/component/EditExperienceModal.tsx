@@ -114,8 +114,8 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
       <ModalOverlay />
       <ModalContent
         maxW={"50vw"}
-        minHeight={"60rem"}
-        height={"80vh"}
+        minHeight={"62rem"}
+        height={"82vh"}
         minWidth={"40rem"}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -126,17 +126,17 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
               <VStack>
                 <Image
                   margin={"auto"}
-                  height={"10rem"}
-                  width={"10rem"}
+                  height={"14rem"}
+                  width={"14rem"}
                   src={imageSrc}
                   fallbackSrc='https://via.placeholder.com/150' />
                 <HStack>
                   <ButtonGroup>
-                    <Button onClick={handleDeleteImage} type='button'>
-                      Delete
-                    </Button>
                     <Button colorScheme='teal' onClick={handleImageChange}>
                       Change Photo
+                    </Button>
+                    <Button onClick={handleDeleteImage} type='button'>
+                      Delete
                     </Button>
                     <Input type="file" display={"none"} ref={inputRef} onChange={onSelectFile} />
                   </ButtonGroup>

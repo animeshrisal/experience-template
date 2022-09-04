@@ -9,6 +9,7 @@ import { getDataFromLocalStorage, saveDataToLocalStorage } from "../helpers/stor
 import { initializeApp } from 'firebase/app';
 import { getFirestore, setDoc, doc, getDoc } from 'firebase/firestore/lite';
 import isOnline from "is-online";
+import EditUserModal from "../component/EditUserModal";
 
 const firebaseConfig = {
 
@@ -20,7 +21,7 @@ const db = getFirestore(app);
 const mockData: User = {
   id: "1",
   name: "Abhinav Risal",
-  age: 1,
+  dateOfBirth: '2022-11-11',
   profilePicture: "test",
   workExperiences: {
     [uuidv4()]: {
@@ -50,16 +51,17 @@ function ProfilePage() {
   const intervalRef = useRef<undefined | ReturnType<typeof setInterval>>();
   const [profile, setProfile] = useState<User | null>(null);
   const [modalStatus, setModalStatus] = useState<ModalStatus>(defaultState);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState<boolean>(false);
   const [selectedExperience, setSelectedExperience] = useState<WorkExperience & SelectedWorkExperience | null>(null);
 
   const saveData = useCallback(async (data: any) => {
-      try {
-        await setDoc(doc(db, "profile", "user"), data);
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      } finally {
-        saveDataToLocalStorage(data);
-      }
+    try {
+      await setDoc(doc(db, "profile", "user"), data);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    } finally {
+      saveDataToLocalStorage(data);
+    }
   }, [])
 
   const checkIfOnline = useCallback(async () => {
@@ -130,10 +132,21 @@ function ProfilePage() {
     setModalStatus(defaultState)
   }
 
-
   const handleClose = () => {
     setModalStatus(defaultState);
     setSelectedExperience(null)
+  }
+
+  const handleProfileSave = () => {
+    setIsEditProfileOpen(false)
+  }
+
+  const handleProfileClose = () => {
+    setIsEditProfileOpen(false)
+  }
+
+  const handleEditProfile = () => {
+    setIsEditProfileOpen(true)
   }
 
   const handleNewExperience = () => {
@@ -144,8 +157,7 @@ function ProfilePage() {
   }
 
   if (profile !== null) {
-
-    const { workExperiences } = profile;
+    const { workExperiences, ...user } = profile;
     return (
       <Container
         maxW={"50vw"}
@@ -154,15 +166,18 @@ function ProfilePage() {
         <HStack width="100%">
           <Box width="100%">
             <VStack align={"flex-start"}>
-              <Heading>
-                Profile
-              </Heading>
+              <Flex alignItems={"center"} justifyContent={"space-between"} width="100%">
+                <Heading>
+                  Profile
+                </Heading>
+                <Button onClick={handleEditProfile}>Edit Profile</Button>
+              </Flex>
               <VStack align={"flex-start"}>
                 <Box>
-                  <Text>Name: {mockData.name}</Text>
+                  <Text>Name: {user.name}</Text>
                 </Box>
                 <Box>
-                  Age: {mockData.age}
+                  Age: {user.dateOfBirth}
                 </Box>
               </VStack>
               <Spacer />
@@ -182,11 +197,17 @@ function ProfilePage() {
           </Box>
         </HStack>
         <Portal>
-          <EditExperienceModal
-            experience={selectedExperience}
-            modalStatus={modalStatus}
-            onSave={handleSave}
-            onClose={handleClose} />
+          <EditUserModal
+            user={user}
+            isOpen={isEditProfileOpen}
+            onSave={handleProfileSave}
+            onClose={handleProfileClose}
+            />
+            <EditExperienceModal
+              experience={selectedExperience}
+              modalStatus={modalStatus}
+              onSave={handleSave}
+              onClose={handleClose} />
         </Portal>
       </Container>
     )

@@ -3,7 +3,7 @@ import { WorkExperience } from "./WorkExperience"
 export interface User {
     id: string,
     name: string,
-    age: number,
+    dateOfBirth: string,
     profilePicture: string,
     workExperiences: Record<string, WorkExperience>
 };
