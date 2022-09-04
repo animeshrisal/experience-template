@@ -61,7 +61,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
 
 
   useEffect(() => {
-    if(watchEndDate) trigger("startDate")
+    if (watchEndDate) trigger("startDate")
   }, [watchEndDate, trigger])
 
   useEffect(() => {
@@ -209,12 +209,23 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
                   disabled={currentPosition}
                   type="date"
                   id='endDate'
-                  {...register('endDate')}
+                  {...register('endDate', {
+                    validate: {
+                      validateEndDate: (value) => {
+                        console.log(value)
+                        if (!currentPosition && value === null) return "Please enter end date"
+                        else return true
+                      }
+                    }
+                  })}
                 />
                 <HStack marginTop="0.5rem">
                   <Switch isChecked={currentPosition} onChange={toggleSwitch} />
                   <Box>Currently working in this role</Box>
                 </HStack>
+                <FormErrorMessage>
+                  {errors.endDate && errors.endDate.message}
+                </FormErrorMessage>
               </FormControl>
             </HStack>
             <FormControl isInvalid={Boolean(errors.company)} marginBottom="1.5rem">
