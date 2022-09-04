@@ -19,6 +19,7 @@ import {
   Avatar,
   Image,
   ButtonGroup,
+  Flex,
 } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -113,7 +114,9 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
       <ModalOverlay />
       <ModalContent
         maxW={"50vw"}
-        height={"75vh"}
+        minHeight={"60rem"}
+        height={"80vh"}
+        minWidth={"40rem"}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>{isEditing ? "Edit" : "Add"} Work Experience</ModalHeader>
@@ -199,7 +202,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
                   {...register('endDate')}
                 />
                 <HStack marginTop="0.5rem">
-                  <Switch isChecked={currentPosition}  onChange={toggleSwitch} />
+                  <Switch isChecked={currentPosition} onChange={toggleSwitch} />
                   <Box>Currently working in this role</Box>
                 </HStack>
               </FormControl>
@@ -241,6 +244,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
               </FormLabel>
               <VStack width="100%" align={"flex-start"}>
                 <Textarea
+                  resize={"none"}
                   height={"15rem"}
                   id='jobDescription'
                   {...register('jobDescription', {
@@ -252,16 +256,21 @@ function EditExperienceModal({ modalStatus, onClose, onSave, experience }: EditE
                 </FormErrorMessage>
               </VStack>
             </FormControl>
-          </ModalBody>
+            <Flex
+              flexDirection={"row"}
+              justifyContent={"flex-end"}
+            >
+              <ButtonGroup>
+                <Button mt={4} colorScheme='red' isLoading={isSubmitting} onClick={handleCancel} type='button'>
+                  Cancel
+                </Button>
+                <Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'>
+                  Save
+                </Button>
 
-          <ModalFooter>
-            <Button mt={4} colorScheme='red' isLoading={isSubmitting} onClick={handleCancel} type='button'>
-              Cancel
-            </Button>
-            <Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'>
-              Save
-            </Button>
-          </ModalFooter>
+              </ButtonGroup>
+            </Flex>
+          </ModalBody>
         </form>
       </ModalContent>
     </Modal>
