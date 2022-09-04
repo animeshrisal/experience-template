@@ -10,6 +10,9 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, setDoc, doc, getDoc } from 'firebase/firestore/lite';
 import isOnline from "is-online";
 import EditUserModal from "../component/EditUserModal";
+import { createStandaloneToast } from '@chakra-ui/toast';
+
+const { ToastContainer, toast } = createStandaloneToast()
 
 const firebaseConfig = {
 
@@ -40,14 +43,11 @@ export interface ModalStatus {
   isOpen: boolean;
   isEditing: boolean;
 }
-
+const defaultState: ModalStatus = {
+  isOpen: false,
+  isEditing: false,
+}
 function ProfilePage() {
-
-  const defaultState: ModalStatus = {
-    isOpen: false,
-    isEditing: false,
-  }
-
   const intervalRef = useRef<undefined | ReturnType<typeof setInterval>>();
   const [profile, setProfile] = useState<User | null>(null);
   const [modalStatus, setModalStatus] = useState<ModalStatus>(defaultState);
@@ -71,6 +71,13 @@ function ProfilePage() {
       saveData(getDataFromLocalStorage()).then(() => {
         clearInterval(intervalRef.current);
         localStorage.removeItem("SyncRequired");
+        toast({
+          title: 'Network is online',
+          description: 'Data has been syncced',
+          status: 'success',
+          duration: 9000,
+          isClosable: true,
+        })
       })
     }
   }, [saveData])
@@ -101,9 +108,26 @@ function ProfilePage() {
           setIsSaving(false);
           setModalStatus(defaultState)
           setIsEditProfileOpen(false)
+          toast({
+            title: 'Saved',
+            description: 'Data has been saved successfully',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          })
         })
       } else {
         saveDataToLocalStorage(profile);
+        setIsSaving(false);
+        setModalStatus(defaultState)
+        setIsEditProfileOpen(false)
+        toast({
+          title: 'No network detectedd.',
+          description: 'Saving data to local storage',
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        })
         localStorage.setItem("SyncRequired", "1");
         const id = setInterval(() => {
           checkIfOnline();
@@ -154,6 +178,7 @@ function ProfilePage() {
 
       setIsSaving(true)
     }
+
   }
 
   const handleClose = () => {
@@ -241,6 +266,7 @@ function ProfilePage() {
           </Box>
         </HStack>
         <Portal>
+          <ToastContainer />
           <EditUserModal
             user={user}
             isSaving={isSaving}
