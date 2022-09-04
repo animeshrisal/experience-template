@@ -12,6 +12,7 @@ import isOnline from "is-online";
 import EditUserModal from "../component/EditUserModal";
 import { createStandaloneToast } from '@chakra-ui/toast';
 import DeleteExperienceModal from "../component/DeleteExperienceModal";
+import { calculateAge, sortWorkExperience } from "../helpers/utils";
 
 const { ToastContainer, toast } = createStandaloneToast()
 
@@ -39,20 +40,26 @@ const mockData: User = {
   }
 }
 
+export enum SelectedModal {
+  IS_ADDING_EXPERIENCE,
+  IS_EDITING_EXPERIENCE,
+  IS_DELETING_EXPERIENCE,
+  IS_EDITING_PROFILE,
+  NONE
+}
+
 export interface ModalStatus {
-  isOpen: boolean;
-  isEditing: boolean;
+  openModal: SelectedModal;
 }
+
 const defaultState: ModalStatus = {
-  isOpen: false,
-  isEditing: false,
+  openModal: SelectedModal.NONE,
 }
+
 function ProfilePage() {
   const intervalRef = useRef<undefined | ReturnType<typeof setInterval>>();
   const [profile, setProfile] = useState<User | null>(null);
   const [modalStatus, setModalStatus] = useState<ModalStatus>(defaultState);
-  const [isEditProfileOpen, setIsEditProfileOpen] = useState<boolean>(false);
-  const [isDeletingExperience, setIsDeletingExperience] = useState<boolean>(false);
   const [selectedExperience, setSelectedExperience] = useState<WorkExperience & SelectedWorkExperience | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -108,8 +115,6 @@ function ProfilePage() {
         saveData(profile).then(() => {
           setIsSaving(false);
           setModalStatus(defaultState)
-          setIsEditProfileOpen(false)
-          setIsDeletingExperience(false)
           toast({
             title: 'Saved',
             description: 'Data has been saved successfully',
@@ -122,7 +127,6 @@ function ProfilePage() {
         saveDataToLocalStorage(profile);
         setIsSaving(false);
         setModalStatus(defaultState)
-        setIsEditProfileOpen(false)
         toast({
           title: 'No network detectedd.',
           description: 'Saving data to local storage',
@@ -159,13 +163,12 @@ function ProfilePage() {
 
   const handleEditWorkExperience = (id: string) => {
     setSelectedExperience({ id, ...profile!.workExperiences[id] })
-    setModalStatus({ isOpen: true, isEditing: true });
+    setModalStatus({ openModal: SelectedModal.IS_EDITING_EXPERIENCE });
   }
 
   const handleSave = async (experienceId: string | null, data: any) => {
     if (profile) {
       setProfile(prevState => {
-        console.log(prevState)
         if (prevState) {
           if (experienceId === null) {
             prevState.workExperiences[uuidv4()] = data
@@ -188,43 +191,37 @@ function ProfilePage() {
     setSelectedExperience(null)
   }
 
-  const handleDeleteClose = () => {
-    setIsDeletingExperience(false);
-    setSelectedExperience(null)
-  }
-
   const handleProfileSave = async (data: any) => {
     setProfile({ ...profile, ...data })
     setIsSaving(true)
   }
 
-  const handleProfileClose = () => {
-    setIsEditProfileOpen(false)
-  }
-
   const handleEditProfile = () => {
-    setIsEditProfileOpen(true)
+    setModalStatus({
+      openModal: SelectedModal.IS_EDITING_PROFILE
+    })
   }
 
   const handleNewExperience = () => {
     setModalStatus({
-      isOpen: true,
-      isEditing: false,
+      openModal: SelectedModal.IS_ADDING_EXPERIENCE
     })
   }
 
   const handleDeleteExperience = (id: string) => {
     setSelectedExperience({ id, ...profile!.workExperiences[id] })
-    setIsDeletingExperience(true);
+    setModalStatus({
+      openModal: SelectedModal.IS_DELETING_EXPERIENCE,
+
+    })
   }
 
   const handleDelete = () => {
     if (profile) {
       setProfile(prevState => {
-        if(prevState && selectedExperience) { 
-          delete prevState.workExperiences[selectedExperience.id] 
+        if (prevState && selectedExperience) {
+          delete prevState.workExperiences[selectedExperience.id]
         }
-
         return prevState
       })
       setSelectedExperience(null)
@@ -232,23 +229,10 @@ function ProfilePage() {
     }
   }
 
-  const calculateAge = (dateOfBirth: string) => {
-    const ageDifMs = Date.now() - new Date(dateOfBirth).getTime();
-    const ageDate = new Date(ageDifMs);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
-  }
-
   if (profile !== null) {
-
     const { workExperiences, ...user } = profile;
     const age = calculateAge(user.dateOfBirth)
-    const sorted = Object.entries(workExperiences)
-      .map((e: [string, WorkExperience]) => ({ id: e[0], ...e[1] }))
-      .sort(function (a, b) {
-        const firstTime = new Date(a.startDate)
-        const secondTime = new Date(b.startDate)
-        return secondTime.valueOf() - firstTime.valueOf()
-      })
+    const sorted = sortWorkExperience(workExperiences)
 
     return (
       <Container
@@ -308,9 +292,9 @@ function ProfilePage() {
           <EditUserModal
             user={user}
             isSaving={isSaving}
-            isOpen={isEditProfileOpen}
+            isOpen={modalStatus.openModal === SelectedModal.IS_EDITING_PROFILE}
             onSave={handleProfileSave}
-            onClose={handleProfileClose}
+            onClose={handleClose}
           />
           <EditExperienceModal
             isSaving={isSaving}
@@ -320,9 +304,9 @@ function ProfilePage() {
             onClose={handleClose} />
           <DeleteExperienceModal
             isSaving={isSaving}
-            isOpen={isDeletingExperience}
+            isOpen={modalStatus.openModal === SelectedModal.IS_DELETING_EXPERIENCE}
             onDelete={handleDelete}
-            onClose={handleDeleteClose} />
+            onClose={handleClose} />
         </Portal>
       </Container>
     )

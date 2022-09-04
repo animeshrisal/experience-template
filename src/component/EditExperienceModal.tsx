@@ -22,7 +22,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { SelectedWorkExperience, WorkExperience } from '../model/WorkExperience';
-import { ModalStatus } from '../page/ProfilePage';
+import { ModalStatus, SelectedModal } from '../page/ProfilePage';
 
 type Inputs = {
   startDate: string;
@@ -50,7 +50,6 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
     reset,
     getValues,
     trigger,
-    watch,
     control
   } = useForm<Inputs>()
 
@@ -102,7 +101,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
   const handleImageChange = () => {
     inputRef.current?.click();
   }
-  const { isOpen, isEditing } = modalStatus
+  const { openModal } = modalStatus
 
   const onSelectFile = (e: any) => {
     var reader = new FileReader();
@@ -118,7 +117,9 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={
+        openModal === SelectedModal.IS_ADDING_EXPERIENCE || 
+        openModal === SelectedModal.IS_EDITING_EXPERIENCE}
       onClose={handleCancel}
     >
       <ModalOverlay />
@@ -129,7 +130,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
         minWidth={"40rem"}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>{isEditing ? "Edit" : "Add"} Work Experience</ModalHeader>
+          <ModalHeader>{openModal === SelectedModal.IS_EDITING_EXPERIENCE ? "Edit" : "Add"} Work Experience</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Box>
@@ -214,7 +215,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
                     validate: {
                       validateEndDate: (value) => {
                         console.log(value)
-                        if (!currentPosition && value === null) return "Please enter end date"
+                        if (!currentPosition && value === '') return "Please enter end date"
                         else return true
                       }
                     }
