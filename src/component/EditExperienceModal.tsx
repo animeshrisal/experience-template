@@ -154,7 +154,7 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
                   height={"14rem"}
                   width={"14rem"}
                   src={imageSrc}
-                  fallbackSrc='https://via.placeholder.com/150' />
+                  fallbackSrc={require('./../assets/default.png')} />
                 <HStack>
                   <ButtonGroup>
                     <Button colorScheme='teal' onClick={handleImageChange}>

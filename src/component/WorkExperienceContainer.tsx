@@ -49,8 +49,11 @@ const WorkExperienceContainer = ({
             onClick={handleDelete}
           >Delete</Button>
         </ButtonGroup>
-        <Container width="5rem" paddingTop="1rem">
-          <Image src={companyLogo} height="4rem" width="4rem" />
+        <Container width="8rem" paddingTop="1rem">
+          <Image 
+          src={companyLogo} 
+          fallbackSrc={require('./../assets/default.png')}
+          height="6rem" width="6rem" />
         </Container>
         <Box width="100%">
           <Box>
