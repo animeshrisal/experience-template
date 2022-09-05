@@ -150,7 +150,7 @@ function ProfilePage() {
   }
 
   const handleEditWorkExperience = (id: string) => {
-    setSelectedExperience({ id, ...profile!.workExperiences[id] })
+    if(profile) setSelectedExperience({ id, ...profile.workExperiences[id] })
     setModalStatus({ openModal: SelectedModal.IS_EDITING_EXPERIENCE });
   }
 
@@ -196,10 +196,9 @@ function ProfilePage() {
   }
 
   const handleDeleteExperience = (id: string) => {
-    setSelectedExperience({ id, ...profile!.workExperiences[id] })
+    if (profile) setSelectedExperience({ id, ...profile.workExperiences[id] })
     setModalStatus({
       openModal: SelectedModal.IS_DELETING_EXPERIENCE,
-
     })
   }
 
@@ -216,10 +215,11 @@ function ProfilePage() {
     }
   }
 
-  if (profile !== null) {
+  if (profile) {
+
     const { workExperiences, ...user } = profile;
     const age = calculateAge(user.dateOfBirth)
-    const sorted = sortWorkExperience(workExperiences)
+    const sortedWorkExperiennce = sortWorkExperience(workExperiences)
 
     return (
       <Container
@@ -264,7 +264,7 @@ function ProfilePage() {
                 >Add New Experience</Button>
               </Flex>
               {
-                sorted.map((value) => <WorkExperienceContainer
+                sortedWorkExperiennce.map((value) => <WorkExperienceContainer
                   key={value.id}
                   {...value}
                   onEdit={handleEditWorkExperience}

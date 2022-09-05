@@ -83,8 +83,6 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
       }
       setCurrentPosition(currentlyWorking)
     }
-
-
   }, [experience, initializeValue, reset])
 
   const onSubmit: SubmitHandler<Inputs> = values => {
