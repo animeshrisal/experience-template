@@ -19,7 +19,7 @@ import {
   ButtonGroup,
   Flex,
 } from '@chakra-ui/react'
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { getToday } from '../helpers/utils';
 import { SelectedWorkExperience, WorkExperience } from '../model/WorkExperience';
@@ -59,11 +59,22 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
     name: "endDate"
   })
 
-
   useEffect(() => {
     if (watchEndDate !== "") trigger("startDate")
   }, [watchEndDate, trigger])
+
+
+  const initializeValue = useCallback(() => {
+    reset({
+      startDate: getToday(),
+      endDate: getToday()
+    });
+
+    setCurrentPosition(true)
+  }, [reset])
+
   useEffect(() => {
+    initializeValue();
     if (experience) {
       const { companyLogo, currentlyWorking, ...remaining } = experience
       reset({ ...remaining })
@@ -72,7 +83,9 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
       }
       setCurrentPosition(currentlyWorking)
     }
-  }, [experience, reset])
+
+
+  }, [experience, initializeValue, reset])
 
   const onSubmit: SubmitHandler<Inputs> = values => {
     if (experience === null) {
