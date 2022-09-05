@@ -230,7 +230,6 @@ function EditExperienceModal({ modalStatus, onClose, onSave, isSaving, experienc
                   {...register('endDate', {
                     validate: {
                       validateEndDate: (value) => {
-                        console.log(value)
                         if (!currentPosition && value === '') return "Please enter end date"
                         else return true
                       }
