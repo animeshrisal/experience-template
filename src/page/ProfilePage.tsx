@@ -236,19 +236,20 @@ function ProfilePage() {
                 <Button onClick={handleEditProfile}>Edit Profile</Button>
               </Flex>
               <VStack align={"flex-start"} width="100%">
-                <HStack width={"100%"}>
+                <HStack width={"100%"} marginLeft="1rem">
                   <Avatar
                     src={user.profilePicture}
                     alignSelf={"center"}
                     height={"6rem"}
                     width={"6rem"}
+                    marginRight={"0.5rem"}
                   />
                   <Box>
                     <Box>
-                      <Text>Name: {user.name}</Text>
+                      <Text fontWeight={"bold"}>Name: {user.name}</Text>
                     </Box>
                     <Box>
-                      <Text>Age: {age}</Text>
+                      <Text fontWeight={"bold"}>Age: {age}</Text>
                     </Box>
                   </Box>
                 </HStack>
