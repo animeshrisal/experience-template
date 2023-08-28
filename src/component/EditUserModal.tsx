@@ -39,7 +39,7 @@ function EditUserModal({ user, isOpen, isSaving, onClose, onSave }: EditUserModa
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset
   } = useForm<Inputs>()
 
