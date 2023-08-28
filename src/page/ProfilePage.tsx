@@ -10,11 +10,12 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, setDoc, doc, getDoc } from 'firebase/firestore/lite';
 import isOnline from "is-online";
 import EditUserModal from "../component/EditUserModal";
-import { createStandaloneToast } from '@chakra-ui/toast';
+import { createStandaloneToast } from '@chakra-ui/react';
 import DeleteExperienceModal from "../component/DeleteExperienceModal";
 import { calculateAge, sortWorkExperience } from "../helpers/utils";
 
 const { ToastContainer, toast } = createStandaloneToast()
+console.log(process.env)
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -83,11 +84,14 @@ function ProfilePage() {
   useEffect(() => {
     const syncRequired = localStorage.getItem("SyncRequired");
     if (syncRequired) {
-      setProfile(getDataFromLocalStorage()!)
-      const id = setInterval(() => {
-        checkIfOnline();
-      }, 5000)
-      intervalRef.current = id;
+      const user = getDataFromLocalStorage()
+      if (user) {
+        setProfile(getDataFromLocalStorage())
+        const id = setInterval(() => {
+          checkIfOnline();
+        }, 5000)
+        intervalRef.current = id;
+      }
     } else {
       getDataFromServer();
     }
@@ -150,7 +154,7 @@ function ProfilePage() {
   }
 
   const handleEditWorkExperience = (id: string) => {
-    if(profile) setSelectedExperience({ id, ...profile.workExperiences[id] })
+    if (profile) setSelectedExperience({ id, ...profile.workExperiences[id] })
     setModalStatus({ openModal: SelectedModal.IS_EDITING_EXPERIENCE });
   }
 
